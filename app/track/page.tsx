@@ -131,7 +131,7 @@ export default function TrackPage() {
       </motion.div>
 
       <div style={{ textAlign: 'center', marginTop: '40px' }}>
-        <Link href="/login" className={styles.backLink}>
+        <Link href="/" className={styles.backLink}>
           <ArrowLeft size={18} />
           Back to Portal
         </Link>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { authService } from "@/services/authService";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -20,12 +20,28 @@ import {
 import { motion } from "framer-motion";
 
 export default function SignupPage() {
+  const router = useRouter();
+  const { showToast } = useToast();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const { showToast } = useToast();
-  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const session = await authService.getSession();
+        if (session) {
+          router.push("/dashboard");
+        } else {
+          setLoading(false);
+        }
+      } catch (e) {
+        setLoading(false);
+      }
+    };
+    checkAuth();
+  }, [router]);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();

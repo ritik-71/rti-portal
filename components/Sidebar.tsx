@@ -33,10 +33,10 @@ export default function Sidebar() {
 
   const navItems = [
     { name: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
-    { name: "Applications", icon: FileText, path: "/dashboard" }, // In a real app, this might be separate
+    { name: "Applications", icon: FileText, path: "/dashboard/applications" },
     { name: "Track RTI", icon: Search, path: "/track" },
-    { name: "Analytics", icon: BarChart3, path: "/dashboard" }, // We'll add this section
-    { name: "Settings", icon: Settings, path: "/dashboard" },
+    { name: "Analytics", icon: BarChart3, path: "/dashboard/analytics" },
+    { name: "Settings", icon: Settings, path: "/dashboard/settings" },
   ];
 
   return (

@@ -1,5 +1,6 @@
 "use client";
 
+import sidebarStyles from "@/styles/Sidebar.module.css";
 import { usePathname } from "next/navigation";
 import Sidebar from "./Sidebar";
 import TopNavbar from "./TopNavbar";
@@ -9,7 +10,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   const pathname = usePathname();
   
   // Define public routes that don't need the dashboard layout
-  const isPublicRoute = pathname === "/login" || pathname === "/signup" || pathname === "/track";
+  const isPublicRoute = pathname === "/login" || pathname === "/signup" || pathname === "/track" || pathname === "/";
 
   if (isPublicRoute) {
     return <>{children}</>;
@@ -18,7 +19,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: 'var(--background-color)' }}>
       <Sidebar />
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+      <div className={sidebarStyles.mainContent}>
         <TopNavbar />
         <motion.main 
           style={{ flex: 1, padding: '32px', overflowY: 'auto' }}

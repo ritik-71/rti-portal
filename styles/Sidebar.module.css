@@ -86,12 +86,25 @@
   background-color: rgba(253, 164, 175, 0.1);
 }
 
+.mainContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin-left: var(--sidebar-width);
+  transition: margin-left var(--transition-normal);
+}
+
 @media (max-width: 768px) {
   .sidebar {
     transform: translateX(-100%);
   }
-  
+
   .sidebarOpen {
     transform: translateX(0);
+  }
+
+  .mainContent {
+    margin-left: 0;
   }
 }

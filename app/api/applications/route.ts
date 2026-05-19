@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '@/lib/supabaseServer';
+import { ApplicationSchema } from '@/utils/validators';
 
 // Helper to generate receipt number
 const generateReceiptNo = () => {
@@ -67,20 +68,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = await request.json();
+    const rawBody = await request.json();
+    const validatedData = ApplicationSchema.parse(rawBody);
+    
     const receipt_no = generateReceiptNo();
     
     const { data, error } = await supabase
       .from('applications')
       .insert([
         {
-          applicant: body.applicant,
-          email: body.email,
-          status: body.status || 'Pending',
+          ...validatedData,
           user_id: user.id,
-          receipt_no: receipt_no,
-          document_url: body.document_url || null,
-          remarks: body.remarks || null
+          receipt_no: receipt_no
         }
       ])
       .select()

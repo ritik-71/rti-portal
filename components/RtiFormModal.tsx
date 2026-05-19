@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import styles from "@/styles/Modal.module.css";
-import { X, Loader2, Save } from "lucide-react";
+import { X, Loader2, Save, UploadCloud } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { storageService } from "@/services/storageService";
 
 export interface RtiApplication {
   id: number;
@@ -36,6 +37,8 @@ export default function RtiFormModal({
     status: "Pending"
   });
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -64,8 +67,19 @@ export default function RtiFormModal({
     if (!validate()) return;
 
     setLoading(true);
+    let finalDocumentUrl = formData.document_url;
+
     try {
-      await onSubmit(formData);
+      if (selectedFile) {
+        setUploading(true);
+        finalDocumentUrl = await storageService.uploadDocument(selectedFile);
+        setUploading(false);
+      }
+      
+      await onSubmit({ ...formData, document_url: finalDocumentUrl });
+    } catch (err: any) {
+      setErrors({ ...errors, submit: err.message || "Failed to upload or submit application." });
+      setUploading(false);
     } finally {
       setLoading(false);
     }
@@ -141,6 +155,30 @@ export default function RtiFormModal({
                       <option value="Approved">Approved</option>
                       <option value="Rejected">Rejected</option>
                     </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label className={styles.label}>Support Document (Optional)</label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <input
+                        type="file"
+                        accept=".pdf, .jpg, .jpeg, .png"
+                        onChange={e => setSelectedFile(e.target.files?.[0] || null)}
+                        disabled={loading || uploading}
+                        id="file-upload"
+                        style={{ display: 'none' }}
+                      />
+                      <label htmlFor="file-upload" className="btn-secondary" style={{ cursor: 'pointer', flex: 1, textAlign: 'center' }}>
+                        <UploadCloud size={18} style={{ marginRight: '8px' }} />
+                        {selectedFile ? selectedFile.name : "Select Document"}
+                      </label>
+                    </div>
+                    {formData.document_url && !selectedFile && (
+                      <p style={{ fontSize: '0.8rem', marginTop: '4px' }}>
+                        Current file: <a href={formData.document_url} target="_blank" rel="noreferrer" style={{ color: 'var(--accent-color)' }}>View Document</a>
+                      </p>
+                    )}
+                    {errors.submit && <p className={styles.errorText}>{errors.submit}</p>}
                   </div>
 
                   {initialData && (

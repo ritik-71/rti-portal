@@ -2,6 +2,10 @@ import { RtiApplication } from "@/components/RtiFormModal";
 import { supabase } from "@/lib/supabaseClient";
 
 export const applicationService = {
+  get API_BASE_URL() {
+    return process.env.NEXT_PUBLIC_API_URL || "";
+  },
+
   async getHeaders() {
     const { data: { session } } = await supabase.auth.getSession();
     return {
@@ -11,7 +15,7 @@ export const applicationService = {
   },
 
   async fetchApplications(page?: number, limit?: number, search?: string, statusFilter?: string) {
-    let url = "/api/applications";
+    let url = `${this.API_BASE_URL}/api/applications`;
     const params = new URLSearchParams();
     if (page !== undefined) params.append("page", page.toString());
     if (limit !== undefined) params.append("limit", limit.toString());
@@ -35,7 +39,7 @@ export const applicationService = {
 
   async createApplication(data: Partial<RtiApplication>) {
     const headers = await this.getHeaders();
-    const res = await fetch("/api/applications", {
+    const res = await fetch(`${this.API_BASE_URL}/api/applications`, {
       method: "POST",
       headers,
       body: JSON.stringify(data),
@@ -49,7 +53,7 @@ export const applicationService = {
 
   async updateApplication(id: number, data: Partial<RtiApplication>) {
     const headers = await this.getHeaders();
-    const res = await fetch(`/api/applications/${id}`, {
+    const res = await fetch(`${this.API_BASE_URL}/api/applications/${id}`, {
       method: "PUT",
       headers,
       body: JSON.stringify(data),
@@ -63,7 +67,7 @@ export const applicationService = {
 
   async deleteApplication(id: number) {
     const headers = await this.getHeaders();
-    const res = await fetch(`/api/applications/${id}`, { 
+    const res = await fetch(`${this.API_BASE_URL}/api/applications/${id}`, { 
       method: "DELETE",
       headers 
     });

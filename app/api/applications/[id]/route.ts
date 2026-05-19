@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '@/lib/supabaseServer';
+import { StatusUpdateSchema } from '@/utils/validators';
 
 export async function PUT(
   request: Request,
@@ -16,19 +17,26 @@ export async function PUT(
 
     const resolvedParams = await params;
     const body = await request.json();
+    
+    // Validate optional fields for update
+    const validatedData = StatusUpdateSchema.parse(body);
+
     const id = parseInt(resolvedParams.id, 10);
     
     if (isNaN(id)) {
       return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
     }
 
+    // Server-Side Role Validation to prevent Self-Approval Bug
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+    const isOfficerOrAdmin = profile?.role === 'admin' || profile?.role === 'officer';
+
+    if ((validatedData.status !== undefined || validatedData.remarks !== undefined) && !isOfficerOrAdmin) {
+      return NextResponse.json({ error: 'Forbidden: Only officers/admins can modify status or remarks' }, { status: 403 });
+    }
+
     // Build update object based on what is provided
-    const updateData: any = {};
-    if (body.applicant !== undefined) updateData.applicant = body.applicant;
-    if (body.email !== undefined) updateData.email = body.email;
-    if (body.status !== undefined) updateData.status = body.status;
-    if (body.document_url !== undefined) updateData.document_url = body.document_url;
-    if (body.remarks !== undefined) updateData.remarks = body.remarks;
+    const updateData: any = { ...body };
 
     const { data, error } = await supabase
       .from('applications')
